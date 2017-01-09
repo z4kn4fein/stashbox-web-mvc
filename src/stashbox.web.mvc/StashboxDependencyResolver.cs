@@ -15,7 +15,7 @@ namespace Stashbox.Web.Mvc
         /// <summary>
         /// Constructs a <see cref="StashboxDependencyResolver"/>
         /// </summary>
-        /// <param name="stashboxContainer"></param>
+        /// <param name="stashboxContainer">The stashbox container instance.</param>
         public StashboxDependencyResolver(IStashboxContainer stashboxContainer)
         {
             Shield.EnsureNotNull(stashboxContainer, nameof(stashboxContainer));
