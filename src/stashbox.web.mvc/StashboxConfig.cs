@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Web.Mvc;
+using Stashbox.Entity;
 using Stashbox.Infrastructure;
 
 namespace Stashbox.Web.Mvc
@@ -24,53 +25,48 @@ namespace Stashbox.Web.Mvc
         public static IStashboxContainer Container => stashboxContainer.Value;
 
         /// <summary>
-        /// Registers all the <see cref="StashboxConfig"/> features.
+        /// Sets the <see cref="StashboxContainer"/> as the default dependency resolver. Calls the <see cref="RegisterComponents"/> virtual method.
         /// </summary>
         public void UseStashbox()
         {
-            this.UseStashboxResolver()
-                .UseStashboxFilterAttributeProvider()
-                .UseStashboxDataAnnotationModelValidatorProvider();
-        }
-
-        /// <summary>
-        /// Sets the <see cref="StashboxContainer"/> as the default dependency resolver. Calls the <see cref="RegisterComponents"/> virtual method.
-        /// </summary>
-        /// <returns>The <see cref="StashboxConfig"/> instance.</returns>
-        public StashboxConfig UseStashboxResolver()
-        {
             DependencyResolver.SetResolver(new StashboxDependencyResolver(Container));
-            RegisterComponents(Container);
-            return this;
+            this.RegisterStashboxComponents(Container);
+            this.RemoveDefaultProviders();
+            this.RegisterComponents(Container);
         }
-
+        
         /// <summary>
         /// Inherited members should override this method, where they can customize the <see cref="StashboxContainer"/> instance and register their services.
         /// </summary>
         /// <param name="container">The <see cref="IStashboxContainer"/> instance.</param>
         protected virtual void RegisterComponents(IStashboxContainer container)
         { }
-
-        /// <summary>
-        /// Replaces the default <see cref="FilterAttributeFilterProvider"/> with the <see cref="StashboxFilterAttributeFilterProvider"/>.
-        /// </summary>
-        /// <returns>The <see cref="StashboxConfig"/> instance.</returns>
-        public StashboxConfig UseStashboxFilterAttributeProvider()
+        
+        private void RegisterStashboxComponents(IDependencyRegistrator container)
         {
-            FilterProviders.Providers.Remove(FilterProviders.Providers.OfType<FilterAttributeFilterProvider>().Single());
-            FilterProviders.Providers.Add(new StashboxFilterAttributeFilterProvider(Container));
-            return this;
+            container.RegisterInstance<IStashboxContainer>(container);
+
+            container.RegisterType<ModelValidatorProvider, StashboxDataAnnotationsModelValidatorProvider>();
+            container.PrepareType<ModelValidatorProvider, StashboxModelValidatorProvider>()
+                .WithInjectionParameters(new InjectionParameter
+                {
+                    Name = "modelValidatorProviders",
+                    Value = ModelValidatorProviders.Providers.Where(provider => !(provider is DataAnnotationsModelValidatorProvider)).ToArray()
+                }).Register();
+
+            container.RegisterType<IFilterProvider, StashboxFilterAttributeFilterProvider>();
+            container.PrepareType<IFilterProvider, StashboxFilterProvider>()
+                .WithInjectionParameters(new InjectionParameter
+                {
+                    Name = "filterProviders",
+                    Value = FilterProviders.Providers.Where(provider => !(provider is FilterAttributeFilterProvider)).ToArray()
+                }).Register();
         }
 
-        /// <summary>
-        /// Replaces the default <see cref="DataAnnotationsModelValidatorProvider"/> with the <see cref="StashboxDataAnnotationsModelValidatorProvider"/>.
-        /// </summary>
-        /// <returns>The <see cref="StashboxConfig"/> instance.</returns>
-        public StashboxConfig UseStashboxDataAnnotationModelValidatorProvider()
+        private void RemoveDefaultProviders()
         {
-            ModelValidatorProviders.Providers.Remove(ModelValidatorProviders.Providers.OfType<DataAnnotationsModelValidatorProvider>().Single());
-            ModelValidatorProviders.Providers.Add(new StashboxDataAnnotationsModelValidatorProvider(Container));
-            return this;
+            FilterProviders.Providers.Clear();
+            ModelValidatorProviders.Providers.Clear();
         }
     }
 }

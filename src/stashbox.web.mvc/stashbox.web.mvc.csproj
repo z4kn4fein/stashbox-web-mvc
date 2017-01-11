@@ -88,6 +88,8 @@
     <Compile Include="StashboxDependencyResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StashboxFilterAttributeFilterProvider.cs" />
+    <Compile Include="StashboxFilterProvider.cs" />
+    <Compile Include="StashboxModelValidatorProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

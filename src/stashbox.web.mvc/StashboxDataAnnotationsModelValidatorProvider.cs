@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Web.Mvc;
+using Ronin.Common;
 using Stashbox.Infrastructure;
 
 namespace Stashbox.Web.Mvc
@@ -22,6 +23,8 @@ namespace Stashbox.Web.Mvc
         /// <param name="stashboxContainer">The stashbox container instance.</param>
         public StashboxDataAnnotationsModelValidatorProvider(IStashboxContainer stashboxContainer)
         {
+            Shield.EnsureNotNull(stashboxContainer, nameof(stashboxContainer));
+
             this.stashboxContainer = stashboxContainer;
             this.attributeGetter = typeof(DataAnnotationsModelValidator).GetMethod("get_Attribute",
                 BindingFlags.NonPublic | BindingFlags.DeclaredOnly | BindingFlags.Instance);
@@ -30,15 +33,14 @@ namespace Stashbox.Web.Mvc
         /// <inheritdoc />
         protected override IEnumerable<ModelValidator> GetValidators(ModelMetadata metadata, ControllerContext context, IEnumerable<Attribute> attributes)
         {
-            var validators = base.GetValidators(metadata, context, attributes);
-            var modelValidators = validators as ModelValidator[] ?? validators.ToArray();
-            foreach (var modelValidator in modelValidators)
+            var validators = base.GetValidators(metadata, context, attributes).ToArray();
+            foreach (var modelValidator in validators)
             {
                 var attribute = this.attributeGetter.Invoke(modelValidator, new object[0]);
                 this.stashboxContainer.BuildUp(attribute);
             }
 
-            return modelValidators;
+            return validators;
         }
     }
 }
