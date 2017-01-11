@@ -9,16 +9,10 @@ namespace Stashbox.Web.Mvc
     /// <summary>
     /// Represents the stashbox configuration for ASP.NET MVC.
     /// </summary>
-    public class StashboxConfig
+    public static class StashboxConfig
     {
-        private static readonly Lazy<StashboxConfig> instance = new Lazy<StashboxConfig>();
         private static readonly Lazy<IStashboxContainer> stashboxContainer = new Lazy<IStashboxContainer>(() => new StashboxContainer());
-
-        /// <summary>
-        /// Singleton instance of the <see cref="StashboxConfig"/>.
-        /// </summary>
-        public static StashboxConfig Instance => instance.Value;
-
+        
         /// <summary>
         /// Singleton instance of the <see cref="StashboxContainer"/>.
         /// </summary>
@@ -27,22 +21,15 @@ namespace Stashbox.Web.Mvc
         /// <summary>
         /// Sets the <see cref="StashboxContainer"/> as the default dependency resolver. Calls the <see cref="RegisterComponents"/> virtual method.
         /// </summary>
-        public void UseStashbox()
+        public static void RegisterStashbox(Action<IStashboxContainer> configureAction)
         {
             DependencyResolver.SetResolver(new StashboxDependencyResolver(Container));
-            this.RegisterStashboxComponents(Container);
-            this.RemoveDefaultProviders();
-            this.RegisterComponents(Container);
+            RegisterStashboxComponents(Container);
+            RemoveDefaultProviders();
+            configureAction(Container);
         }
         
-        /// <summary>
-        /// Inherited members should override this method, where they can customize the <see cref="StashboxContainer"/> instance and register their services.
-        /// </summary>
-        /// <param name="container">The <see cref="IStashboxContainer"/> instance.</param>
-        protected virtual void RegisterComponents(IStashboxContainer container)
-        { }
-        
-        private void RegisterStashboxComponents(IDependencyRegistrator container)
+        private static void RegisterStashboxComponents(IDependencyRegistrator container)
         {
             container.RegisterInstance<IStashboxContainer>(container);
 
@@ -63,7 +50,7 @@ namespace Stashbox.Web.Mvc
                 }).Register();
         }
 
-        private void RemoveDefaultProviders()
+        private static void RemoveDefaultProviders()
         {
             FilterProviders.Providers.Clear();
             ModelValidatorProviders.Providers.Clear();
