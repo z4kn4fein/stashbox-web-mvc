@@ -27,23 +27,21 @@ namespace Stashbox.Web.Mvc
         /// <inheritdoc />
         protected override IEnumerable<FilterAttribute> GetActionAttributes(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
         {
-            var attributes = base.GetActionAttributes(controllerContext, actionDescriptor);
-            var filterAttributes = attributes as FilterAttribute[] ?? attributes.ToArray();
-            foreach (var filterAttribute in filterAttributes)
+            var attributes = base.GetActionAttributes(controllerContext, actionDescriptor).ToArray();
+            foreach (var filterAttribute in attributes)
                 this.stashboxContainer.BuildUp(filterAttribute);
 
-            return filterAttributes;
+            return attributes;
         }
 
         /// <inheritdoc />
         protected override IEnumerable<FilterAttribute> GetControllerAttributes(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
         {
-            var attributes = base.GetControllerAttributes(controllerContext, actionDescriptor);
-            var filterAttributes = attributes as FilterAttribute[] ?? attributes.ToArray();
-            foreach (var filterAttribute in filterAttributes)
+            var attributes = base.GetControllerAttributes(controllerContext, actionDescriptor).ToArray();
+            foreach (var filterAttribute in attributes)
                 this.stashboxContainer.BuildUp(filterAttribute);
 
-            return filterAttributes;
+            return attributes;
         }
     }
 }
