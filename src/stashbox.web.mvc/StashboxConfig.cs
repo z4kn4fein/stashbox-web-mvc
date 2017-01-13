@@ -19,7 +19,7 @@ namespace Stashbox.Web.Mvc
         public static IStashboxContainer Container => stashboxContainer.Value;
 
         /// <summary>
-        /// Sets the <see cref="StashboxContainer"/> as the default dependency resolver. Calls the <see cref="RegisterComponents"/> virtual method.
+        /// Sets the <see cref="StashboxContainer"/> as the default dependency resolver and sets custom <see cref="IFilterProvider"/> and <see cref="ModelValidatorProvider"/>.
         /// </summary>
         public static void RegisterStashbox(Action<IStashboxContainer> configureAction)
         {
