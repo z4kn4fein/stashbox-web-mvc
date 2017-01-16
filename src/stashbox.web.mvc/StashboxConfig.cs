@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Stashbox.Entity;
+using Stashbox.Infrastructure;
+using System;
 using System.Linq;
 using System.Web.Mvc;
-using Stashbox.Entity;
-using Stashbox.Infrastructure;
 
 namespace Stashbox.Web.Mvc
 {
@@ -11,8 +11,8 @@ namespace Stashbox.Web.Mvc
     /// </summary>
     public static class StashboxConfig
     {
-        private static readonly Lazy<IStashboxContainer> stashboxContainer = new Lazy<IStashboxContainer>(() => new StashboxContainer());
-        
+        private static readonly Lazy<IStashboxContainer> stashboxContainer = new Lazy<IStashboxContainer>(() => new StashboxContainer(trackTransientsForDisposal: true));
+
         /// <summary>
         /// Singleton instance of the <see cref="StashboxContainer"/>.
         /// </summary>
@@ -28,7 +28,7 @@ namespace Stashbox.Web.Mvc
             RemoveDefaultProviders();
             configureAction(Container);
         }
-        
+
         private static void RegisterStashboxComponents(IDependencyRegistrator container)
         {
             container.RegisterInstance<IStashboxContainer>(container);
