@@ -11,6 +11,7 @@ assembly_info:
   assembly_informational_version: '{version}'
 before_build:
 - nuget restore src\stashbox.web.mvc.sln
+- nuget update src\stashbox.web.mvc.sln -id Stashbox
 build:
   project: src\stashbox.web.mvc.sln
   publish_nuget: true
