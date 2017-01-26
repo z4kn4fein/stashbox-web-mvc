@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Stashbox.Infrastructure;
+﻿using Stashbox.Infrastructure;
 using Stashbox.Utils;
+using System;
+using System.Collections.Generic;
 
 namespace Stashbox.Web.Mvc
 {
@@ -26,13 +26,13 @@ namespace Stashbox.Web.Mvc
         /// <inheritdoc />
         public object GetService(Type serviceType)
         {
-            return this.stashboxContainer.IsRegistered(serviceType) ? this.stashboxContainer.Resolve(serviceType) : null;
+            return this.stashboxContainer.CanResolve(serviceType) ? this.stashboxContainer.Resolve(serviceType) : null;
         }
 
         /// <inheritdoc />
         public IEnumerable<object> GetServices(Type serviceType)
         {
-            return this.stashboxContainer.IsRegistered(serviceType) ? this.stashboxContainer.ResolveAll(serviceType) : new List<object>();
+            return this.stashboxContainer.CanResolve(serviceType) ? this.stashboxContainer.ResolveAll(serviceType) : new List<object>();
         }
     }
 }
