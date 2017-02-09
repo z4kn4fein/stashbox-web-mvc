@@ -1,8 +1,6 @@
-﻿using Stashbox.Infrastructure;
-using Stashbox.Utils;
+﻿using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
-using System.Web;
 
 namespace Stashbox.Web.Mvc
 {
@@ -11,49 +9,31 @@ namespace Stashbox.Web.Mvc
     /// </summary>
     public class StashboxDependencyResolver : System.Web.Mvc.IDependencyResolver
     {
-        private const string ScopeKey = "requestScope";
-        private readonly IStashboxContainer stashboxContainer;
+        private readonly IPerRequestScopeProvider perRequestScopeProvider;
 
         /// <summary>
         /// Constructs a <see cref="StashboxDependencyResolver"/>
         /// </summary>
-        /// <param name="stashboxContainer">The stashbox container instance.</param>
-        public StashboxDependencyResolver(IStashboxContainer stashboxContainer)
+        /// <param name="perRequestScopeProvider">The per request scope provider.</param>
+        public StashboxDependencyResolver(IPerRequestScopeProvider perRequestScopeProvider)
         {
-            Shield.EnsureNotNull(stashboxContainer, nameof(stashboxContainer));
+            Shield.EnsureNotNull(perRequestScopeProvider, nameof(perRequestScopeProvider));
 
-            this.stashboxContainer = stashboxContainer;
+            this.perRequestScopeProvider = perRequestScopeProvider;
         }
 
         /// <inheritdoc />
         public object GetService(Type serviceType)
         {
-            return this.GetScope().CanResolve(serviceType) ? this.GetScope().Resolve(serviceType) : null;
+            return this.perRequestScopeProvider.GetOrCreateScope().CanResolve(serviceType) ? 
+                this.perRequestScopeProvider.GetOrCreateScope().Resolve(serviceType) : null;
         }
 
         /// <inheritdoc />
         public IEnumerable<object> GetServices(Type serviceType)
         {
-            return this.GetScope().CanResolve(serviceType) ? this.GetScope().ResolveAll(serviceType) : new List<object>();
-        }
-
-        /// <summary>
-        /// Closes the current per request scope.
-        /// </summary>
-        public static void TerminateScope()
-        {
-            var scope = HttpContext.Current.Items[ScopeKey] as IStashboxContainer;
-            scope?.Dispose();
-        }
-
-        private IStashboxContainer GetScope()
-        {
-                var scope = HttpContext.Current.Items[ScopeKey] as IStashboxContainer;
-
-                if (scope == null)
-                    HttpContext.Current.Items[ScopeKey] = scope = this.stashboxContainer.BeginScope();
-
-                return scope;
+            return this.perRequestScopeProvider.GetOrCreateScope().CanResolve(serviceType) ? 
+                this.perRequestScopeProvider.GetOrCreateScope().ResolveAll(serviceType) : new List<object>();
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Stashbox.Web.Mvc
         /// </summary>
         public static void RegisterStashbox(Action<IStashboxContainer> configureAction)
         {
-            DependencyResolver.SetResolver(new StashboxDependencyResolver(Container));
+            DependencyResolver.SetResolver(new StashboxDependencyResolver(new StashboxPerRequestScopeProvider(Container)));
             RegisterStashboxComponents(Container);
             RemoveDefaultProviders();
             configureAction(Container);

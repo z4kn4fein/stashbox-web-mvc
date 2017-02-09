@@ -10,7 +10,7 @@ namespace Stashbox.Web.Mvc
         /// <inheritdoc />
         public void Init(HttpApplication context)
         {
-            context.EndRequest += (sender, e) => StashboxDependencyResolver.TerminateScope();
+            context.EndRequest += (sender, e) => StashboxPerRequestScopeProvider.TerminateScope();
         }
 
         /// <inheritdoc />
