@@ -1,44 +1,36 @@
-﻿using System.Web;
-using Stashbox.Infrastructure;
+﻿using Stashbox.Infrastructure;
+using System;
+using System.Web;
 
 namespace Stashbox.Web.Mvc
 {
     /// <summary>
-    /// Represents a per request scope provider interface.
+    /// Represents a per request scope provider using the <see cref="StashboxContainer"/>.
     /// </summary>
-    public interface IPerRequestScopeProvider
+    public class StashboxPerRequestScopeProvider
     {
-        /// <summary>
-        /// Gets or creates a per request scope.
-        /// </summary>
-        /// <returns>The existing or a new scope.</returns>
-        IStashboxContainer GetOrCreateScope();
-    }
-
-    /// <summary>
-    /// The <see cref="IPerRequestScopeProvider"/> implementation which uses <see cref="IStashboxContainer"/> as scope manager.
-    /// </summary>
-    public class StashboxPerRequestScopeProvider : IPerRequestScopeProvider
-    {
-        private readonly IStashboxContainer rootScope;
         private const string ScopeKey = "requestScope";
 
+        private static readonly Lazy<IStashboxContainer> stashboxContainer = new Lazy<IStashboxContainer>(() => new StashboxContainer(config =>
+            config.WithCircularDependencyTracking()
+            .WithDisposableTransientTracking()
+            .WithParentContainerResolution()));
+
         /// <summary>
-        /// Constructs a <see cref="StashboxPerRequestScopeProvider"/>.
+        /// Singleton instance of the <see cref="StashboxContainer"/>.
         /// </summary>
-        /// <param name="rootScope">The root <see cref="IStashboxContainer"/> instance.</param>
-        public StashboxPerRequestScopeProvider(IStashboxContainer rootScope)
-        {
-            this.rootScope = rootScope;
-        }
+        public static IStashboxContainer Container => stashboxContainer.Value;
 
-        /// <inheritdoc />
-        public IStashboxContainer GetOrCreateScope()
+        /// <summary>
+        /// Gets or creates a scope.
+        /// </summary>
+        /// <returns></returns>
+        public static IStashboxContainer GetOrCreateScope()
         {
-            var scope = HttpContext.Current.Items[ScopeKey] as IStashboxContainer;
+            var scope = HttpContext.Current?.Items[ScopeKey] as IStashboxContainer;
 
-            if (scope == null)
-                HttpContext.Current.Items[ScopeKey] = scope = this.rootScope.BeginScope();
+            if (scope == null && HttpContext.Current != null)
+                HttpContext.Current.Items[ScopeKey] = scope = Container.BeginScope();
 
             return scope;
         }
@@ -48,7 +40,7 @@ namespace Stashbox.Web.Mvc
         /// </summary>
         public static void TerminateScope()
         {
-            var scope = HttpContext.Current.Items[ScopeKey] as IStashboxContainer;
+            var scope = HttpContext.Current?.Items[ScopeKey] as IStashboxContainer;
             scope?.Dispose();
         }
     }

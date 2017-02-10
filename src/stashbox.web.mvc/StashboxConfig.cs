@@ -11,25 +11,15 @@ namespace Stashbox.Web.Mvc
     /// </summary>
     public static class StashboxConfig
     {
-        private static readonly Lazy<IStashboxContainer> stashboxContainer = new Lazy<IStashboxContainer>(() => new StashboxContainer(config =>
-            config.WithCircularDependencyTracking()
-            .WithDisposableTransientTracking()
-            .WithParentContainerResolution()));
-
-        /// <summary>
-        /// Singleton instance of the <see cref="StashboxContainer"/>.
-        /// </summary>
-        public static IStashboxContainer Container => stashboxContainer.Value;
-
         /// <summary>
         /// Sets the <see cref="StashboxContainer"/> as the default dependency resolver and sets custom <see cref="IFilterProvider"/> and <see cref="ModelValidatorProvider"/>.
         /// </summary>
         public static void RegisterStashbox(Action<IStashboxContainer> configureAction)
         {
-            DependencyResolver.SetResolver(new StashboxDependencyResolver(new StashboxPerRequestScopeProvider(Container)));
-            RegisterStashboxComponents(Container);
+            DependencyResolver.SetResolver(new StashboxDependencyResolver());
+            RegisterStashboxComponents(StashboxPerRequestScopeProvider.Container);
             RemoveDefaultProviders();
-            configureAction(Container);
+            configureAction(StashboxPerRequestScopeProvider.Container);
         }
 
         private static void RegisterStashboxComponents(IDependencyRegistrator container)
