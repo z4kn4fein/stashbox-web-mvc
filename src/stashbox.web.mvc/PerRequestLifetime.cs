@@ -39,17 +39,20 @@ namespace Stashbox.Web.Mvc
                 Expression.Constant(objectBuilder),
                 Expression.Constant(resolutionInfo),
                 Expression.Constant(resolveType));
-            return Expression.Convert(call, resolveType.Type); ;
+            return Expression.Convert(call, resolveType.Type);
         }
 
         private object CollectScopedInstance(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             lock (this.sync)
             {
-                if (HttpContext.Current != null && HttpContext.Current.Items[scopedId] != null)
-                    return HttpContext.Current.Items[scopedId];
+                if (HttpContext.Current == null)
+                    return null;
 
-                var scope = StashboxPerRequestScopeProvider.GetOrCreateScope();
+                if (HttpContext.Current.Items[this.scopedId] != null)
+                    return HttpContext.Current.Items[this.scopedId];
+
+                var scope = HttpContext.Current.Items[StashboxPerRequestScopeProvider.ScopeKey] as IStashboxContainer;
                 object instance = null;
                 if (containerContext.Container == scope)
                 {
@@ -59,8 +62,7 @@ namespace Stashbox.Web.Mvc
                 else if (scope != null)
                     instance = scope.ActivationContext.Activate(resolutionInfo, resolveType);
 
-                if (HttpContext.Current != null)
-                    HttpContext.Current.Items[scopedId] = instance;
+                HttpContext.Current.Items[this.scopedId] = instance;
 
                 return instance;
             }
@@ -70,6 +72,26 @@ namespace Stashbox.Web.Mvc
         public override ILifetime Create()
         {
             return new PerRequestLifetime(this.scopedId);
+        }
+
+        /// <inheritdoc />
+        public override void CleanUp()
+        {
+            lock (this.sync)
+            {
+                if (HttpContext.Current == null)
+                    return;
+
+                if (HttpContext.Current.Items[this.scopedId] != null)
+                {
+                    var instance = HttpContext.Current.Items[this.scopedId] as IDisposable;
+                    if (instance != null)
+                    {
+                        instance.Dispose();
+                        HttpContext.Current.Items[this.scopedId] = null;
+                    }
+                }
+            }
         }
     }
 }

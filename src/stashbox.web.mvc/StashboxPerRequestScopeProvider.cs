@@ -1,5 +1,4 @@
 ﻿using Stashbox.Infrastructure;
-using System;
 using System.Web;
 
 namespace Stashbox.Web.Mvc
@@ -9,28 +8,32 @@ namespace Stashbox.Web.Mvc
     /// </summary>
     public class StashboxPerRequestScopeProvider
     {
-        private const string ScopeKey = "requestScope";
+        /// <summary>
+        /// The scope identifier.
+        /// </summary>
+        public const string ScopeKey = "stashboxRequestScope";
 
-        private static readonly Lazy<IStashboxContainer> stashboxContainer = new Lazy<IStashboxContainer>(() => new StashboxContainer(config =>
-            config.WithCircularDependencyTracking()
-            .WithDisposableTransientTracking()
-            .WithParentContainerResolution()));
+        private readonly IStashboxContainer container;
 
         /// <summary>
-        /// Singleton instance of the <see cref="StashboxContainer"/>.
+        /// Constructs a per request scope provider.
         /// </summary>
-        public static IStashboxContainer Container => stashboxContainer.Value;
+        /// <param name="container">The stashbox container.</param>
+        public StashboxPerRequestScopeProvider(IStashboxContainer container)
+        {
+            this.container = container;
+        }
 
         /// <summary>
         /// Gets or creates a scope.
         /// </summary>
-        /// <returns></returns>
-        public static IStashboxContainer GetOrCreateScope()
+        /// <returns>The scope.</returns>
+        public IStashboxContainer GetOrCreateScope()
         {
             var scope = HttpContext.Current?.Items[ScopeKey] as IStashboxContainer;
 
             if (scope == null && HttpContext.Current != null)
-                HttpContext.Current.Items[ScopeKey] = scope = Container.BeginScope();
+                HttpContext.Current.Items[ScopeKey] = scope = this.container.BeginScope();
 
             return scope;
         }

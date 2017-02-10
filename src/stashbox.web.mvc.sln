@@ -5,8 +5,6 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stashbox.web.mvc", "stashbox.web.mvc\stashbox.web.mvc.csproj", "{1EA7A15D-7637-4ADC-9697-35377E38433F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stashbox.web.mvc.tests", "stashbox.web.mvc.tests\stashbox.web.mvc.tests.csproj", "{D3F2EFEC-5255-441B-94C3-881F5F436962}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{1EA7A15D-7637-4ADC-9697-35377E38433F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EA7A15D-7637-4ADC-9697-35377E38433F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EA7A15D-7637-4ADC-9697-35377E38433F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D3F2EFEC-5255-441B-94C3-881F5F436962}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D3F2EFEC-5255-441B-94C3-881F5F436962}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D3F2EFEC-5255-441B-94C3-881F5F436962}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D3F2EFEC-5255-441B-94C3-881F5F436962}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

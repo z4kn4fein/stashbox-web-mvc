@@ -16,10 +16,25 @@ namespace Stashbox.Web.Mvc
         /// </summary>
         public static void RegisterStashbox(Action<IStashboxContainer> configureAction)
         {
-            DependencyResolver.SetResolver(new StashboxDependencyResolver());
-            RegisterStashboxComponents(StashboxPerRequestScopeProvider.Container);
+            var container = new StashboxContainer(config => config
+                .WithCircularDependencyTracking()
+                .WithDisposableTransientTracking()
+                .WithParentContainerResolution());
+
+            DependencyResolver.SetResolver(new StashboxDependencyResolver(new StashboxPerRequestScopeProvider(container)));
+            RegisterStashboxComponents(container);
             RemoveDefaultProviders();
-            configureAction(StashboxPerRequestScopeProvider.Container);
+            configureAction(container);
+        }
+
+        /// <summary>
+        /// Sets the <see cref="StashboxContainer"/> as the default dependency resolver and sets custom <see cref="IFilterProvider"/> and <see cref="ModelValidatorProvider"/>.
+        /// </summary>
+        public static void RegisterStashbox(IStashboxContainer container)
+        {
+            DependencyResolver.SetResolver(new StashboxDependencyResolver(new StashboxPerRequestScopeProvider(container)));
+            RegisterStashboxComponents(container);
+            RemoveDefaultProviders();
         }
 
         private static void RegisterStashboxComponents(IDependencyRegistrator container)

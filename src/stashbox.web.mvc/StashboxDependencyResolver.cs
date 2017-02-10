@@ -8,18 +8,29 @@ namespace Stashbox.Web.Mvc
     /// </summary>
     public class StashboxDependencyResolver : System.Web.Mvc.IDependencyResolver
     {
+        private readonly StashboxPerRequestScopeProvider scopeProvider;
+
+        /// <summary>
+        /// Constructs a stashbox dependency resolver.
+        /// </summary>
+        /// <param name="scopeProvider">The per request scope provider.</param>
+        public StashboxDependencyResolver(StashboxPerRequestScopeProvider scopeProvider)
+        {
+            this.scopeProvider = scopeProvider;
+        }
+
         /// <inheritdoc />
         public object GetService(Type serviceType)
         {
-            return StashboxPerRequestScopeProvider.GetOrCreateScope().CanResolve(serviceType) ?
-                StashboxPerRequestScopeProvider.GetOrCreateScope().Resolve(serviceType) : null;
+            return this.scopeProvider.GetOrCreateScope().CanResolve(serviceType) ?
+                this.scopeProvider.GetOrCreateScope().Resolve(serviceType) : null;
         }
 
         /// <inheritdoc />
         public IEnumerable<object> GetServices(Type serviceType)
         {
-            return StashboxPerRequestScopeProvider.GetOrCreateScope().CanResolve(serviceType) ?
-                StashboxPerRequestScopeProvider.GetOrCreateScope().ResolveAll(serviceType) : new List<object>();
+            return this.scopeProvider.GetOrCreateScope().CanResolve(serviceType) ?
+                this.scopeProvider.GetOrCreateScope().ResolveAll(serviceType) : new List<object>();
         }
     }
 }
