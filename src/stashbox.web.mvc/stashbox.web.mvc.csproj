@@ -42,8 +42,8 @@
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Stashbox, Version=2.0.14.0, Culture=neutral, PublicKeyToken=9778e33426732b68, processorArchitecture=MSIL">
-      <HintPath>..\packages\Stashbox.2.0.14\lib\portable45-net45+win8+wp8+wpa81\Stashbox.dll</HintPath>
+    <Reference Include="Stashbox, Version=0.0.0.0, Culture=neutral, PublicKeyToken=9778e33426732b68, processorArchitecture=MSIL">
+      <HintPath>..\packages\Stashbox.2.0.33\lib\net45\Stashbox.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
