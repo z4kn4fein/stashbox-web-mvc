@@ -43,7 +43,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Stashbox, Version=0.0.0.0, Culture=neutral, PublicKeyToken=9778e33426732b68, processorArchitecture=MSIL">
-      <HintPath>..\packages\Stashbox.2.0.33\lib\net45\Stashbox.dll</HintPath>
+      <HintPath>..\packages\Stashbox.2.1.1\lib\net45\Stashbox.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
