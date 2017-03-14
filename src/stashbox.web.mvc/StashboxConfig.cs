@@ -2,7 +2,10 @@
 using Stashbox.Infrastructure;
 using System;
 using System.Linq;
+using System.Reflection;
+using System.Web.Compilation;
 using System.Web.Mvc;
+using Stashbox.Lifetime;
 
 namespace Stashbox.Web.Mvc
 {
@@ -22,7 +25,7 @@ namespace Stashbox.Web.Mvc
                 .WithParentContainerResolution());
 
             DependencyResolver.SetResolver(new StashboxDependencyResolver(new StashboxPerRequestScopeProvider(container)));
-            RegisterStashboxComponents(container);
+            RegisterComponents(container);
             RemoveDefaultProviders();
             configureAction(container);
         }
@@ -33,11 +36,11 @@ namespace Stashbox.Web.Mvc
         public static void RegisterStashbox(IStashboxContainer container)
         {
             DependencyResolver.SetResolver(new StashboxDependencyResolver(new StashboxPerRequestScopeProvider(container)));
-            RegisterStashboxComponents(container);
+            RegisterComponents(container);
             RemoveDefaultProviders();
         }
 
-        private static void RegisterStashboxComponents(IDependencyRegistrator container)
+        private static void RegisterComponents(IDependencyRegistrator container)
         {
             container.RegisterInstance<IStashboxContainer>(container);
 
@@ -56,6 +59,18 @@ namespace Stashbox.Web.Mvc
                     Name = "filterProviders",
                     Value = FilterProviders.Providers.Where(provider => !(provider is FilterAttributeFilterProvider)).ToArray()
                 }).Register();
+
+            RegisterControllers(container);
+        }
+
+        private static void RegisterControllers(IDependencyRegistrator container)
+        {
+            var controllerTypes = BuildManager.GetReferencedAssemblies().OfType<Assembly>()
+                .Where(assembly => !assembly.IsDynamic && !assembly.GlobalAssemblyCache)
+                .SelectMany(assembly => assembly.GetTypes()).Where(type => typeof(IController).IsAssignableFrom(type));
+
+            foreach (var controllerType in controllerTypes)
+                container.PrepareType(controllerType).WithLifetime(new ScopedLifetime()).Register();
         }
 
         private static void RemoveDefaultProviders()

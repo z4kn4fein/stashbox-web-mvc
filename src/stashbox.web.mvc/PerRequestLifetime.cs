@@ -32,17 +32,17 @@ namespace Stashbox.Web.Mvc
         public override bool IsScoped => true;
 
         /// <inheritdoc />
-        public override Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, TypeInformation resolveType)
+        public override Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Type resolveType)
         {
             var call = Expression.Call(Expression.Constant(this), "CollectScopedInstance", null,
                 Expression.Constant(containerContext),
                 Expression.Constant(objectBuilder),
                 Expression.Constant(resolutionInfo),
                 Expression.Constant(resolveType));
-            return Expression.Convert(call, resolveType.Type);
+            return Expression.Convert(call, resolveType);
         }
 
-        private object CollectScopedInstance(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, TypeInformation resolveType)
+        private object CollectScopedInstance(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Type resolveType)
         {
             lock (this.sync)
             {
