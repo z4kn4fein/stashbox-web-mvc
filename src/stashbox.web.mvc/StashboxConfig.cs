@@ -21,8 +21,7 @@ namespace Stashbox.Web.Mvc
         {
             var container = new StashboxContainer(config => config
                 .WithCircularDependencyTracking()
-                .WithDisposableTransientTracking()
-                .WithParentContainerResolution());
+                .WithDisposableTransientTracking());
 
             DependencyResolver.SetResolver(new StashboxDependencyResolver(new StashboxPerRequestScopeProvider(container)));
             RegisterComponents(container);
