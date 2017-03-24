@@ -20,17 +20,11 @@ namespace Stashbox.Web.Mvc
         }
 
         /// <inheritdoc />
-        public object GetService(Type serviceType)
-        {
-            return this.scopeProvider.GetOrCreateScope().CanResolve(serviceType) ?
-                this.scopeProvider.GetOrCreateScope().Resolve(serviceType) : null;
-        }
+        public object GetService(Type serviceType) =>
+                this.scopeProvider.GetOrCreateScope().Resolve(serviceType, nullResultAllowed: true);
 
         /// <inheritdoc />
-        public IEnumerable<object> GetServices(Type serviceType)
-        {
-            return this.scopeProvider.GetOrCreateScope().CanResolve(serviceType) ?
-                this.scopeProvider.GetOrCreateScope().ResolveAll(serviceType) : new List<object>();
-        }
+        public IEnumerable<object> GetServices(Type serviceType) =>
+                this.scopeProvider.GetOrCreateScope().ResolveAll(serviceType);
     }
 }

@@ -12,86 +12,67 @@ namespace Stashbox.Web.Mvc
     /// </summary>
     public class PerRequestLifetime : LifetimeBase
     {
-        private readonly object sync = new object();
-        private readonly int scopedId;
+        private volatile Expression expression;
+        private readonly object syncObject = new object();
+        private readonly string scopeId;
 
         /// <summary>
         /// Constructs a <see cref="PerRequestLifetime"/>.
         /// </summary>
-        public PerRequestLifetime()
-        {
-            this.scopedId = Guid.NewGuid().GetHashCode();
-        }
+        public PerRequestLifetime() : this(Guid.NewGuid().ToString())
+        { }
 
-        private PerRequestLifetime(int scopedId)
+        private PerRequestLifetime(string scopeId)
         {
-            this.scopedId = scopedId;
+            this.scopeId = scopeId;
         }
-
-        /// <inheritdoc />
-        public override bool IsScoped => true;
 
         /// <inheritdoc />
         public override Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Type resolveType)
         {
-            var call = Expression.Call(Expression.Constant(this), "CollectScopedInstance", null,
-                Expression.Constant(containerContext),
-                Expression.Constant(objectBuilder),
-                Expression.Constant(resolutionInfo),
-                Expression.Constant(resolveType));
-            return Expression.Convert(call, resolveType);
-        }
-
-        private object CollectScopedInstance(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Type resolveType)
-        {
-            lock (this.sync)
+            if (this.expression != null) return this.expression;
+            lock (this.syncObject)
             {
-                if (HttpContext.Current == null)
+                if (this.expression != null) return this.expression;
+                var expr = base.GetExpression(containerContext, objectBuilder, resolutionInfo, resolveType);
+                if (expr == null)
                     return null;
 
-                if (HttpContext.Current.Items[this.scopedId] != null)
-                    return HttpContext.Current.Items[this.scopedId];
+                var factory = expr.CompileDelegate(Stashbox.Constants.ScopeExpression);
 
-                var scope = HttpContext.Current.Items[StashboxPerRequestScopeProvider.ScopeKey] as IStashboxContainer;
-                object instance = null;
-                if (containerContext.Container == scope)
-                {
-                    var expr = base.GetExpression(containerContext, objectBuilder, resolutionInfo, resolveType);
-                    instance = Expression.Lambda<Func<object>>(expr).Compile()();
-                }
-                else if (scope != null)
-                    instance = scope.ActivationContext.Activate(resolutionInfo, resolveType);
+                var method = Constants.GetScopedValueMethod.MakeGenericMethod(resolveType);
 
-                HttpContext.Current.Items[this.scopedId] = instance;
-
-                return instance;
+                this.expression = Expression.Call(method,
+                    Stashbox.Constants.ScopeExpression,
+                    Expression.Constant(factory),
+                    Expression.Constant(this.scopeId));
             }
+
+            return this.expression;
         }
 
-        /// <inheritdoc />
-        public override ILifetime Create()
+        private static TValue CollectScopedInstance<TValue>(IResolutionScope scope, Func<IResolutionScope, object> factory, string scopeId)
+            where TValue : class
         {
-            return new PerRequestLifetime(this.scopedId);
-        }
+            if (HttpContext.Current == null)
+                return null;
 
-        /// <inheritdoc />
-        public override void CleanUp()
-        {
-            lock (this.sync)
+            if (HttpContext.Current.Items[scopeId] != null)
+                return HttpContext.Current.Items[scopeId] as TValue;
+
+            TValue instance;
+            if (HttpContext.Current.Items[StashboxPerRequestScopeProvider.ScopeKey] is IResolutionScope requestScope)
             {
-                if (HttpContext.Current == null)
-                    return;
-
-                if (HttpContext.Current.Items[this.scopedId] != null)
-                {
-                    var instance = HttpContext.Current.Items[this.scopedId] as IDisposable;
-                    if (instance != null)
-                    {
-                        instance.Dispose();
-                        HttpContext.Current.Items[this.scopedId] = null;
-                    }
-                }
+                instance = factory(requestScope) as TValue;
+                HttpContext.Current.Items[scopeId] = instance;
             }
+            else
+                instance = factory(scope) as TValue;
+
+            return instance;
         }
+
+        /// <inheritdoc />
+        public override ILifetime Create() => new PerRequestLifetime(this.scopeId);
     }
 }

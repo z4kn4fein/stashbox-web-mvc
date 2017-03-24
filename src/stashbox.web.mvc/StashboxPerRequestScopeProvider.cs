@@ -28,9 +28,9 @@ namespace Stashbox.Web.Mvc
         /// Gets or creates a scope.
         /// </summary>
         /// <returns>The scope.</returns>
-        public IStashboxContainer GetOrCreateScope()
+        public IDependencyResolver GetOrCreateScope()
         {
-            var scope = HttpContext.Current?.Items[ScopeKey] as IStashboxContainer;
+            var scope = HttpContext.Current?.Items[ScopeKey] as IDependencyResolver;
 
             if (scope == null && HttpContext.Current != null)
                 HttpContext.Current.Items[ScopeKey] = scope = this.container.BeginScope();
@@ -43,7 +43,7 @@ namespace Stashbox.Web.Mvc
         /// </summary>
         public static void TerminateScope()
         {
-            var scope = HttpContext.Current?.Items[ScopeKey] as IStashboxContainer;
+            var scope = HttpContext.Current?.Items[ScopeKey] as IDependencyResolver;
             scope?.Dispose();
         }
     }
