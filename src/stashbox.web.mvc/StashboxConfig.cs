@@ -39,37 +39,35 @@ namespace Stashbox.Web.Mvc
             RemoveDefaultProviders();
         }
 
-        private static void RegisterComponents(IDependencyRegistrator container)
+        private static void RegisterComponents(IStashboxContainer container)
         {
-            container.RegisterInstance<IStashboxContainer>(container);
-
+            container.RegisterInstance(container);
             container.RegisterType<ModelValidatorProvider, StashboxDataAnnotationsModelValidatorProvider>();
-            container.PrepareType<ModelValidatorProvider, StashboxModelValidatorProvider>()
-                .WithInjectionParameters(new InjectionParameter
+            container.RegisterType<ModelValidatorProvider, StashboxModelValidatorProvider>(context =>
+                context.WithInjectionParameters(new InjectionParameter
                 {
                     Name = "modelValidatorProviders",
                     Value = ModelValidatorProviders.Providers.Where(provider => !(provider is DataAnnotationsModelValidatorProvider)).ToArray()
-                }).Register();
+                }));
 
             container.RegisterType<IFilterProvider, StashboxFilterAttributeFilterProvider>();
-            container.PrepareType<IFilterProvider, StashboxFilterProvider>()
-                .WithInjectionParameters(new InjectionParameter
+            container.RegisterType<IFilterProvider, StashboxFilterProvider>(context =>
+                context.WithInjectionParameters(new InjectionParameter
                 {
                     Name = "filterProviders",
                     Value = FilterProviders.Providers.Where(provider => !(provider is FilterAttributeFilterProvider)).ToArray()
-                }).Register();
+                }));
 
             RegisterControllers(container);
         }
 
         private static void RegisterControllers(IDependencyRegistrator container)
         {
-            var controllerTypes = BuildManager.GetReferencedAssemblies().OfType<Assembly>()
-                .Where(assembly => !assembly.IsDynamic && !assembly.GlobalAssemblyCache)
-                .SelectMany(assembly => assembly.GetTypes()).Where(type => typeof(IController).IsAssignableFrom(type));
+            var controllers = BuildManager.GetReferencedAssemblies().OfType<Assembly>()
+                .Where(assembly => !assembly.IsDynamic && !assembly.GlobalAssemblyCache);
 
-            foreach (var controllerType in controllerTypes)
-                container.PrepareType(controllerType).WithLifetime(new ScopedLifetime()).Register();
+            container.RegisterAssembliesAsSelf(controllers, type => typeof(IController).IsAssignableFrom(type),
+                context => context.WithLifetime(new ScopedLifetime()));
         }
 
         private static void RemoveDefaultProviders()

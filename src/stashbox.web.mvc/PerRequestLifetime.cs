@@ -4,6 +4,7 @@ using Stashbox.Lifetime;
 using System;
 using System.Linq.Expressions;
 using System.Web;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Web.Mvc
 {
@@ -28,13 +29,13 @@ namespace Stashbox.Web.Mvc
         }
 
         /// <inheritdoc />
-        public override Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Type resolveType)
+        public override Expression GetExpression(IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Type resolveType)
         {
             if (this.expression != null) return this.expression;
             lock (this.syncObject)
             {
                 if (this.expression != null) return this.expression;
-                var expr = base.GetExpression(containerContext, objectBuilder, resolutionInfo, resolveType);
+                var expr = base.GetExpression(serviceRegistration, objectBuilder, resolutionInfo, resolveType);
                 if (expr == null)
                     return null;
 
