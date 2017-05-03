@@ -66,7 +66,7 @@ namespace Stashbox.Web.Mvc
             var controllers = BuildManager.GetReferencedAssemblies().OfType<Assembly>()
                 .Where(assembly => !assembly.IsDynamic && !assembly.GlobalAssemblyCache);
 
-            container.RegisterAssembliesAsSelf(controllers, type => typeof(IController).IsAssignableFrom(type),
+            container.RegisterAssemblies(controllers, type => typeof(IController).IsAssignableFrom(type),
                 context => context.WithLifetime(new ScopedLifetime()));
         }
 
