@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Web.Mvc;
 using System.Linq;
-using Stashbox.Infrastructure;
 using Stashbox.Utils;
 
 namespace Stashbox.Web.Mvc
@@ -11,17 +10,17 @@ namespace Stashbox.Web.Mvc
     /// </summary>
     public class StashboxFilterAttributeFilterProvider : FilterAttributeFilterProvider
     {
-        private readonly IStashboxContainer stashboxContainer;
+        private readonly Infrastructure.IDependencyResolver dependencyResolver;
 
         /// <summary>
         /// Constructs a <see cref="StashboxFilterAttributeFilterProvider"/>
         /// </summary>
-        /// <param name="stashboxContainer">The stashbox container instance.</param>
-        public StashboxFilterAttributeFilterProvider(IStashboxContainer stashboxContainer)
+        /// <param name="dependencyResolver">The stashbox container instance.</param>
+        public StashboxFilterAttributeFilterProvider(Infrastructure.IDependencyResolver dependencyResolver)
         {
-            Shield.EnsureNotNull(stashboxContainer, nameof(stashboxContainer));
+            Shield.EnsureNotNull(dependencyResolver, nameof(dependencyResolver));
 
-            this.stashboxContainer = stashboxContainer;
+            this.dependencyResolver = dependencyResolver;
         }
 
         /// <inheritdoc />
@@ -29,7 +28,7 @@ namespace Stashbox.Web.Mvc
         {
             var attributes = base.GetActionAttributes(controllerContext, actionDescriptor).ToArray();
             foreach (var filterAttribute in attributes)
-                this.stashboxContainer.BuildUp(filterAttribute);
+                this.dependencyResolver.BuildUp(filterAttribute);
 
             return attributes;
         }
@@ -39,7 +38,7 @@ namespace Stashbox.Web.Mvc
         {
             var attributes = base.GetControllerAttributes(controllerContext, actionDescriptor).ToArray();
             foreach (var filterAttribute in attributes)
-                this.stashboxContainer.BuildUp(filterAttribute);
+                this.dependencyResolver.BuildUp(filterAttribute);
 
             return attributes;
         }

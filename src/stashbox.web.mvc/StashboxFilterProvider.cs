@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using Stashbox.Infrastructure;
 using Stashbox.Utils;
 
 namespace Stashbox.Web.Mvc
@@ -11,20 +10,20 @@ namespace Stashbox.Web.Mvc
     /// </summary>
     public class StashboxFilterProvider : IFilterProvider
     {
-        private readonly IStashboxContainer stashboxContainer;
+        private readonly Infrastructure.IDependencyResolver dependencyResolver;
         private readonly IEnumerable<IFilterProvider> filterProviders;
 
         /// <summary>
         /// Constructs a <see cref="StashboxFilterProvider"/>
         /// </summary>
-        /// <param name="stashboxContainer">The stashbox container instance.</param>
+        /// <param name="dependencyResolver">The stashbox container instance.</param>
         /// <param name="filterProviders">The collection of the existing filter providers.</param>
-        public StashboxFilterProvider(IStashboxContainer stashboxContainer, IEnumerable<IFilterProvider> filterProviders)
+        public StashboxFilterProvider(Infrastructure.IDependencyResolver dependencyResolver, IEnumerable<IFilterProvider> filterProviders)
         {
-            Shield.EnsureNotNull(stashboxContainer, nameof(stashboxContainer));
+            Shield.EnsureNotNull(dependencyResolver, nameof(dependencyResolver));
             Shield.EnsureNotNull(filterProviders, nameof(filterProviders));
 
-            this.stashboxContainer = stashboxContainer;
+            this.dependencyResolver = dependencyResolver;
             this.filterProviders = filterProviders;
         }
 
@@ -33,7 +32,7 @@ namespace Stashbox.Web.Mvc
         {
             var filters = this.filterProviders.SelectMany(provider => provider.GetFilters(controllerContext, actionDescriptor)).ToArray();
             foreach (var filter in filters)
-                this.stashboxContainer.BuildUp(filter.Instance);
+                this.dependencyResolver.BuildUp(filter.Instance);
 
             return filters;
         }

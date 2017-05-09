@@ -41,7 +41,6 @@ namespace Stashbox.Web.Mvc
 
         private static void RegisterComponents(IStashboxContainer container)
         {
-            container.RegisterInstance(container);
             container.RegisterType<ModelValidatorProvider, StashboxDataAnnotationsModelValidatorProvider>();
             container.RegisterType<ModelValidatorProvider, StashboxModelValidatorProvider>(context =>
                 context.WithInjectionParameters(new InjectionParameter

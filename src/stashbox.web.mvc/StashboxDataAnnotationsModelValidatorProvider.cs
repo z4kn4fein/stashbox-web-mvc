@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Web.Mvc;
-using Stashbox.Infrastructure;
 using Stashbox.Utils;
 
 namespace Stashbox.Web.Mvc
@@ -13,19 +12,19 @@ namespace Stashbox.Web.Mvc
     /// </summary>
     public class StashboxDataAnnotationsModelValidatorProvider : DataAnnotationsModelValidatorProvider
     {
-        private readonly IStashboxContainer stashboxContainer;
+        private readonly Infrastructure.IDependencyResolver dependencyResolver;
 
         private readonly MethodInfo attributeGetter;
 
         /// <summary>
         /// Constructs a <see cref="StashboxDataAnnotationsModelValidatorProvider"/>
         /// </summary>
-        /// <param name="stashboxContainer">The stashbox container instance.</param>
-        public StashboxDataAnnotationsModelValidatorProvider(IStashboxContainer stashboxContainer)
+        /// <param name="dependencyResolver">The stashbox container instance.</param>
+        public StashboxDataAnnotationsModelValidatorProvider(Infrastructure.IDependencyResolver dependencyResolver)
         {
-            Shield.EnsureNotNull(stashboxContainer, nameof(stashboxContainer));
+            Shield.EnsureNotNull(dependencyResolver, nameof(dependencyResolver));
 
-            this.stashboxContainer = stashboxContainer;
+            this.dependencyResolver = dependencyResolver;
             this.attributeGetter = typeof(DataAnnotationsModelValidator).GetMethod("get_Attribute",
                 BindingFlags.NonPublic | BindingFlags.DeclaredOnly | BindingFlags.Instance);
         }
@@ -37,7 +36,7 @@ namespace Stashbox.Web.Mvc
             foreach (var modelValidator in validators)
             {
                 var attribute = this.attributeGetter.Invoke(modelValidator, new object[0]);
-                this.stashboxContainer.BuildUp(attribute);
+                this.dependencyResolver.BuildUp(attribute);
             }
 
             return validators;

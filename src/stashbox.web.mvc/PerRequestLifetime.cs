@@ -15,15 +15,15 @@ namespace Stashbox.Web.Mvc
     {
         private volatile Expression expression;
         private readonly object syncObject = new object();
-        private readonly string scopeId;
+        private readonly object scopeId;
 
         /// <summary>
         /// Constructs a <see cref="PerRequestLifetime"/>.
         /// </summary>
-        public PerRequestLifetime() : this(Guid.NewGuid().ToString())
+        public PerRequestLifetime() : this(new object())
         { }
 
-        private PerRequestLifetime(string scopeId)
+        private PerRequestLifetime(object scopeId)
         {
             this.scopeId = scopeId;
         }
@@ -52,7 +52,7 @@ namespace Stashbox.Web.Mvc
             return this.expression;
         }
 
-        private static TValue CollectScopedInstance<TValue>(IResolutionScope scope, Func<IResolutionScope, object> factory, string scopeId)
+        private static TValue CollectScopedInstance<TValue>(IResolutionScope scope, Func<IResolutionScope, object> factory, object scopeId)
             where TValue : class
         {
             if (HttpContext.Current == null)
