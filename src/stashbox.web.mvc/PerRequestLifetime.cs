@@ -1,55 +1,35 @@
-﻿using Stashbox.Entity;
-using Stashbox.Infrastructure;
+﻿using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.Registration;
 using Stashbox.Lifetime;
+using Stashbox.Resolution;
 using System;
 using System.Linq.Expressions;
 using System.Web;
-using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Web.Mvc
 {
     /// <summary>
     /// Represents a per request lifetime.
     /// </summary>
-    public class PerRequestLifetime : LifetimeBase
+    public class PerRequestLifetime : ScopedLifetimeBase
     {
         private volatile Expression expression;
         private readonly object syncObject = new object();
-        private readonly object scopeId;
-
-        /// <summary>
-        /// Constructs a <see cref="PerRequestLifetime"/>.
-        /// </summary>
-        public PerRequestLifetime() : this(new object())
-        { }
-
-        private PerRequestLifetime(object scopeId)
-        {
-            this.scopeId = scopeId;
-        }
-
+        
         /// <inheritdoc />
-        public override Expression GetExpression(IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Type resolveType)
+        public override Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionContext resolutionContext, Type resolveType)
         {
             if (this.expression != null) return this.expression;
             lock (this.syncObject)
             {
                 if (this.expression != null) return this.expression;
-                var expr = base.GetExpression(serviceRegistration, objectBuilder, resolutionInfo, resolveType);
-                if (expr == null)
+                var factory = base.GetFactoryDelegate(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
+                if (factory == null)
                     return null;
 
-                var factory = expr.CompileDelegate(Stashbox.Constants.ScopeExpression);
-
-                var method = Constants.GetScopedValueMethod.MakeGenericMethod(resolveType);
-
-                this.expression = Expression.Call(method,
-                    Stashbox.Constants.ScopeExpression,
-                    Expression.Constant(factory),
-                    Expression.Constant(this.scopeId));
+                return this.expression = Constants.GetScopedValueMethod.MakeGenericMethod(resolveType)
+                    .InvokeMethod(resolutionContext.CurrentScopeParameter, factory.AsConstant(), base.ScopeId.AsConstant());
             }
-
-            return this.expression;
         }
 
         private static TValue CollectScopedInstance<TValue>(IResolutionScope scope, Func<IResolutionScope, object> factory, object scopeId)
@@ -74,6 +54,6 @@ namespace Stashbox.Web.Mvc
         }
 
         /// <inheritdoc />
-        public override ILifetime Create() => new PerRequestLifetime(this.scopeId);
+        public override ILifetime Create() => new PerRequestLifetime();
     }
 }

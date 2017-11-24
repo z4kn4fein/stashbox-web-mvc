@@ -1,11 +1,11 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using Stashbox.Lifetime;
 using System;
 using System.Linq;
 using System.Reflection;
 using System.Web.Compilation;
 using System.Web.Mvc;
-using Stashbox.Lifetime;
 
 namespace Stashbox.Web.Mvc
 {
@@ -60,7 +60,7 @@ namespace Stashbox.Web.Mvc
             RegisterControllers(container);
         }
 
-        private static void RegisterControllers(IDependencyRegistrator container)
+        private static void RegisterControllers(IDependencyCollectionRegistrator container)
         {
             var controllers = BuildManager.GetReferencedAssemblies().OfType<Assembly>()
                 .Where(assembly => !assembly.IsDynamic && !assembly.GlobalAssemblyCache);
