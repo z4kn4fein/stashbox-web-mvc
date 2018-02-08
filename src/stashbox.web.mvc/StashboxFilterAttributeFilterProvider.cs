@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Web.Mvc;
+﻿using Stashbox.Utils;
+using System.Collections.Generic;
 using System.Linq;
-using Stashbox.Utils;
+using System.Web.Mvc;
 
 namespace Stashbox.Web.Mvc
 {
@@ -10,13 +10,13 @@ namespace Stashbox.Web.Mvc
     /// </summary>
     public class StashboxFilterAttributeFilterProvider : FilterAttributeFilterProvider
     {
-        private readonly Infrastructure.IDependencyResolver dependencyResolver;
+        private readonly IDependencyResolver dependencyResolver;
 
         /// <summary>
         /// Constructs a <see cref="StashboxFilterAttributeFilterProvider"/>
         /// </summary>
         /// <param name="dependencyResolver">The stashbox container instance.</param>
-        public StashboxFilterAttributeFilterProvider(Infrastructure.IDependencyResolver dependencyResolver)
+        public StashboxFilterAttributeFilterProvider(IDependencyResolver dependencyResolver)
         {
             Shield.EnsureNotNull(dependencyResolver, nameof(dependencyResolver));
 

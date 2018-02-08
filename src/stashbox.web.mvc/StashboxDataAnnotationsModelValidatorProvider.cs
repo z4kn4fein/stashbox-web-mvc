@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Stashbox.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Web.Mvc;
-using Stashbox.Utils;
 
 namespace Stashbox.Web.Mvc
 {
@@ -12,7 +12,7 @@ namespace Stashbox.Web.Mvc
     /// </summary>
     public class StashboxDataAnnotationsModelValidatorProvider : DataAnnotationsModelValidatorProvider
     {
-        private readonly Infrastructure.IDependencyResolver dependencyResolver;
+        private readonly IDependencyResolver dependencyResolver;
 
         private readonly MethodInfo attributeGetter;
 
@@ -20,7 +20,7 @@ namespace Stashbox.Web.Mvc
         /// Constructs a <see cref="StashboxDataAnnotationsModelValidatorProvider"/>
         /// </summary>
         /// <param name="dependencyResolver">The stashbox container instance.</param>
-        public StashboxDataAnnotationsModelValidatorProvider(Infrastructure.IDependencyResolver dependencyResolver)
+        public StashboxDataAnnotationsModelValidatorProvider(IDependencyResolver dependencyResolver)
         {
             Shield.EnsureNotNull(dependencyResolver, nameof(dependencyResolver));
 

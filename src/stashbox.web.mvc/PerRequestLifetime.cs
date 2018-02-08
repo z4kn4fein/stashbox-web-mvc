@@ -1,6 +1,6 @@
-﻿using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.Registration;
+﻿using Stashbox.BuildUp;
 using Stashbox.Lifetime;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
 using System.Linq.Expressions;
@@ -15,7 +15,7 @@ namespace Stashbox.Web.Mvc
     {
         private volatile Expression expression;
         private readonly object syncObject = new object();
-        
+
         /// <inheritdoc />
         public override Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionContext resolutionContext, Type resolveType)
         {

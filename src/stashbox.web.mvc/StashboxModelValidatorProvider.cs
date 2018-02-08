@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Stashbox.Utils;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using Stashbox.Utils;
 
 namespace Stashbox.Web.Mvc
 {
@@ -10,7 +10,7 @@ namespace Stashbox.Web.Mvc
     /// </summary>
     public class StashboxModelValidatorProvider : ModelValidatorProvider
     {
-        private readonly Infrastructure.IDependencyResolver dependencyResolver;
+        private readonly IDependencyResolver dependencyResolver;
         private readonly IEnumerable<ModelValidatorProvider> modelValidatorProviders;
 
         /// <summary>
@@ -18,7 +18,7 @@ namespace Stashbox.Web.Mvc
         /// </summary>
         /// <param name="dependencyResolver">The stashbox container instance.</param>
         /// <param name="modelValidatorProviders">The collection of the existing model validator providers.</param>
-        public StashboxModelValidatorProvider(Infrastructure.IDependencyResolver dependencyResolver, IEnumerable<ModelValidatorProvider> modelValidatorProviders)
+        public StashboxModelValidatorProvider(IDependencyResolver dependencyResolver, IEnumerable<ModelValidatorProvider> modelValidatorProviders)
         {
             Shield.EnsureNotNull(dependencyResolver, nameof(dependencyResolver));
             Shield.EnsureNotNull(modelValidatorProviders, nameof(modelValidatorProviders));

@@ -1,5 +1,4 @@
 ﻿using Stashbox.Entity;
-using Stashbox.Infrastructure;
 using Stashbox.Lifetime;
 using System;
 using System.Linq;

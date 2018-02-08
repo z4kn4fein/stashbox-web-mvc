@@ -1,5 +1,4 @@
-﻿using Stashbox.Infrastructure;
-using System.Web;
+﻿using System.Web;
 
 namespace Stashbox.Web.Mvc
 {
