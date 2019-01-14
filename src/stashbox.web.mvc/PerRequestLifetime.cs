@@ -23,12 +23,12 @@ namespace Stashbox.Web.Mvc
             lock (this.syncObject)
             {
                 if (this.expression != null) return this.expression;
-                var factory = base.GetFactoryDelegate(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
+                var factory = base.GetFactoryExpression(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
                 if (factory == null)
                     return null;
 
                 return this.expression = Constants.GetScopedValueMethod.MakeGenericMethod(resolveType)
-                    .InvokeMethod(resolutionContext.CurrentScopeParameter, factory.AsConstant(), base.ScopeId.AsConstant());
+                    .InvokeMethod(resolutionContext.CurrentScopeParameter, factory, base.ScopeId.AsConstant());
             }
         }
 

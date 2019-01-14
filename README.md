@@ -14,7 +14,7 @@ public class MvcApplication : System.Web.HttpApplication
 
     private void ConfigureServices(IStashboxContainer container)
     {
-        container.RegisterType<IService1, Service1>();
+        container.Register<IService1, Service1>();
         //etc...
     }
 }

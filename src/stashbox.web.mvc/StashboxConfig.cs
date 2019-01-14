@@ -40,16 +40,16 @@ namespace Stashbox.Web.Mvc
 
         private static void RegisterComponents(IStashboxContainer container)
         {
-            container.RegisterType<ModelValidatorProvider, StashboxDataAnnotationsModelValidatorProvider>();
-            container.RegisterType<ModelValidatorProvider, StashboxModelValidatorProvider>(context =>
+            container.Register<ModelValidatorProvider, StashboxDataAnnotationsModelValidatorProvider>();
+            container.Register<ModelValidatorProvider, StashboxModelValidatorProvider>(context =>
                 context.WithInjectionParameters(new InjectionParameter
                 {
                     Name = "modelValidatorProviders",
                     Value = ModelValidatorProviders.Providers.Where(provider => !(provider is DataAnnotationsModelValidatorProvider)).ToArray()
                 }));
 
-            container.RegisterType<IFilterProvider, StashboxFilterAttributeFilterProvider>();
-            container.RegisterType<IFilterProvider, StashboxFilterProvider>(context =>
+            container.Register<IFilterProvider, StashboxFilterAttributeFilterProvider>();
+            container.Register<IFilterProvider, StashboxFilterProvider>(context =>
                 context.WithInjectionParameters(new InjectionParameter
                 {
                     Name = "filterProviders",
