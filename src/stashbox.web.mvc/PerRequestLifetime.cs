@@ -28,7 +28,7 @@ namespace Stashbox.Web.Mvc
                     return null;
 
                 return this.expression = Constants.GetScopedValueMethod.MakeGenericMethod(resolveType)
-                    .InvokeMethod(resolutionContext.CurrentScopeParameter, factory, base.ScopeId.AsConstant());
+                    .CallStaticMethod(resolutionContext.CurrentScopeParameter, factory, base.ScopeId.AsConstant());
             }
         }
 
