@@ -1,5 +1,5 @@
 environment:
-  build_version: 2.5.0
+  build_version: 2.5.1
 
 version: $(build_version)-{build}
 
@@ -8,7 +8,7 @@ pull_requests:
 configuration: Release
 platform: Any CPU
 
-image: Visual Studio 2017
+image: Visual Studio 2019
 
 assembly_info:
   patch: true
