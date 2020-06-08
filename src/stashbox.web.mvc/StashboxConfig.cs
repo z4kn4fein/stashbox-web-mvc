@@ -1,6 +1,6 @@
-﻿using Stashbox.Entity;
-using Stashbox.Lifetime;
+﻿using Stashbox.Lifetime;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Web.Compilation;
@@ -19,7 +19,6 @@ namespace Stashbox.Web.Mvc
         public static void RegisterStashbox(Action<IStashboxContainer> configureAction)
         {
             var container = new StashboxContainer(config => config
-                .WithCircularDependencyTracking()
                 .WithDisposableTransientTracking());
 
             DependencyResolver.SetResolver(new StashboxDependencyResolver(new StashboxPerRequestScopeProvider(container)));
@@ -42,19 +41,13 @@ namespace Stashbox.Web.Mvc
         {
             container.Register<ModelValidatorProvider, StashboxDataAnnotationsModelValidatorProvider>();
             container.Register<ModelValidatorProvider, StashboxModelValidatorProvider>(context =>
-                context.WithInjectionParameters(new InjectionParameter
-                {
-                    Name = "modelValidatorProviders",
-                    Value = ModelValidatorProviders.Providers.Where(provider => !(provider is DataAnnotationsModelValidatorProvider)).ToArray()
-                }));
+                context.WithInjectionParameters(new KeyValuePair<string, object>("modelValidatorProviders",
+                    ModelValidatorProviders.Providers.Where(provider => !(provider is DataAnnotationsModelValidatorProvider)).ToArray())));
 
             container.Register<IFilterProvider, StashboxFilterAttributeFilterProvider>();
             container.Register<IFilterProvider, StashboxFilterProvider>(context =>
-                context.WithInjectionParameters(new InjectionParameter
-                {
-                    Name = "filterProviders",
-                    Value = FilterProviders.Providers.Where(provider => !(provider is FilterAttributeFilterProvider)).ToArray()
-                }));
+                context.WithInjectionParameters(new KeyValuePair<string, object>("filterProviders",
+                    FilterProviders.Providers.Where(provider => !(provider is FilterAttributeFilterProvider)).ToArray())));
 
             RegisterControllers(container);
         }

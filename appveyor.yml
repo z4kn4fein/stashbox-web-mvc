@@ -1,4 +1,8 @@
-version: 2.4.{build}
+environment:
+  build_version: 2.5.0
+
+version: $(build_version)-{build}
+
 pull_requests:
   do_not_increment_build_number: true
 configuration: Release
@@ -9,9 +13,9 @@ image: Visual Studio 2017
 assembly_info:
   patch: true
   file: '**\AssemblyInfo.*'
-  assembly_version: '{version}'
-  assembly_file_version: '{version}'
-  assembly_informational_version: '{version}'
+  assembly_version: $(build_version)
+  assembly_file_version: $(build_version)
+  assembly_informational_version: $(build_version)
 before_build:
 - nuget restore src\stashbox.web.mvc.sln
 - nuget update src\stashbox.web.mvc.sln -id Stashbox

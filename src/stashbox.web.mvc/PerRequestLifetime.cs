@@ -1,5 +1,4 @@
-﻿using Stashbox.BuildUp;
-using Stashbox.Lifetime;
+﻿using Stashbox.Lifetime;
 using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
@@ -11,26 +10,16 @@ namespace Stashbox.Web.Mvc
     /// <summary>
     /// Represents a per request lifetime.
     /// </summary>
-    public class PerRequestLifetime : ScopedLifetimeBase
+    public class PerRequestLifetime : FactoryLifetimeDescriptor
     {
-        private volatile Expression expression;
-        private readonly object syncObject = new object();
+        /// <inheritdoc />
+        protected override int LifeSpan { get; } = 10;
 
         /// <inheritdoc />
-        public override Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionContext resolutionContext, Type resolveType)
-        {
-            if (this.expression != null) return this.expression;
-            lock (this.syncObject)
-            {
-                if (this.expression != null) return this.expression;
-                var factory = base.GetFactoryExpression(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
-                if (factory == null)
-                    return null;
-
-                return this.expression = Constants.GetScopedValueMethod.MakeGenericMethod(resolveType)
-                    .CallStaticMethod(resolutionContext.CurrentScopeParameter, factory, base.ScopeId.AsConstant());
-            }
-        }
+        protected override Expression ApplyLifetime(Func<IResolutionScope, object> factory, ServiceRegistration serviceRegistration, ResolutionContext resolutionContext,
+            Type resolveType) =>
+            Constants.GetScopedValueMethod.MakeGenericMethod(resolveType)
+                .CallStaticMethod(resolutionContext.CurrentScopeParameter, factory.AsConstant(), serviceRegistration.RegistrationId.AsConstant(typeof(object)));
 
         private static TValue CollectScopedInstance<TValue>(IResolutionScope scope, Func<IResolutionScope, object> factory, object scopeId)
             where TValue : class
@@ -52,8 +41,5 @@ namespace Stashbox.Web.Mvc
 
             return instance;
         }
-
-        /// <inheritdoc />
-        public override ILifetime Create() => new PerRequestLifetime();
     }
 }

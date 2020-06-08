@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Stashbox.Web.Mvc")]
-[assembly: AssemblyDescription("ASP.NET MVC integration for Stashbox")]
+[assembly: AssemblyDescription("ASP.NET MVC integration for Stashbox.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Peter Csajtai")]
 [assembly: AssemblyProduct("Stashbox.Web.Mvc")]
-[assembly: AssemblyCopyright("Copyright © Peter Csajtai 2017")]
+[assembly: AssemblyCopyright("Copyright © Peter Csajtai 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
